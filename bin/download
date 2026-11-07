@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+current_script_path=${BASH_SOURCE[0]}
+plugin_dir=$(dirname "$(dirname "$current_script_path")")
+
+# shellcheck source=./lib/utils.bash
+source "${plugin_dir}/lib/utils.bash"
+
+mkdir -p "$ASDF_DOWNLOAD_PATH"
+
+asset="$(release_asset "$ASDF_INSTALL_VERSION")"
+release_file="$ASDF_DOWNLOAD_PATH/$asset"
+
+download_release "$ASDF_INSTALL_VERSION" "$release_file"
+
+# Releases up to 0.3.0 are a bare gzipped binary, later ones a tarball holding just `fj`.
+case "$asset" in
+*.tar.gz) tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" || fail "Could not extract $release_file" ;;
+*.gz)
+	gzip -dc "$release_file" >"$ASDF_DOWNLOAD_PATH/fj" || fail "Could not extract $release_file"
+	chmod +x "$ASDF_DOWNLOAD_PATH/fj"
+	;;
+esac
+
+rm "$release_file"

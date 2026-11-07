@@ -1,0 +1,20 @@
+name: Conventional Commits
+
+# This repo merges via real merge commits, so every commit the PR brings in lands
+# on master as written. Check each one, not just the PR title.
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  conventional-commits:
+    name: Validate Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run conventional commits check
+        uses: webiny/action-conventional-commits@v1.4.2
+        with:
+          allowed-commit-types: feat,fix,docs,style,refactor,test,build,perf,ci,chore,revert,merge,wip,deps

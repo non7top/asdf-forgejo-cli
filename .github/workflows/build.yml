@@ -1,0 +1,27 @@
+name: forgejo-cli Build
+
+# No push trigger: master requires a PR, so every commit there was already
+# built via pull_request on the same tree.
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin_test:
+    name: asdf plugin test
+    strategy:
+      matrix:
+        # One per upstream asset layout: <arch>-linux.tar.gz, linux.tar.gz, linux.gz.
+        version: ["latest", "0.4.1", "0.3.0"]
+    # Upstream publishes Linux binaries only.
+    runs-on: ubuntu-latest
+    steps:
+      - name: asdf_plugin_test
+        uses: asdf-vm/actions/plugin-test@v4
+        with:
+          command: fj version
+          version: ${{ matrix.version }}
